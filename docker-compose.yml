@@ -1,0 +1,22 @@
+version: "3.3"
+
+services:
+  postgres:
+    image: postgres:11.5
+    ports:
+      - 5432:5432
+
+  shelter:
+    image: shelter:latest
+    ports:
+      - 8000:8000
+    volumes:
+      - type: bind
+        source: ./shelter/
+        target: /app/shelter/
+    environment:
+    - "PYTHONUNBUFFERED=0"
+    command: bash -c "sleep 5 && python service.py"
+    restart: on-failure
+    depends_on:
+      - postgres
