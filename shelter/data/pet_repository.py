@@ -1,7 +1,7 @@
-from contextlib import contextmanager, asynccontextmanager
 from typing import Dict
 
 from shelter.data import db
+from shelter.data.base_repository import BaseGinoRepository
 from shelter.entities.pet_data_storage import PetDataStorage
 
 
@@ -32,16 +32,7 @@ class PetModel(db.Model):
         }
 
 
-class PostgresPetsRepository(PetDataStorage):
-    def __init__(self, gino_engine):
-        self._engine = gino_engine
-
-    @asynccontextmanager
-    async def transaction(self):
-        async with self._engine.acquire() as connection:
-            async with connection.transaction():
-                yield
-
+class PostgresPetsRepository(PetDataStorage, BaseGinoRepository):
     async def add(self, pet_data: Dict):
         async with self.transaction():
             p = await PetModel.create(**pet_data)
