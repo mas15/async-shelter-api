@@ -47,7 +47,7 @@ class APIService:
 
 async def make_app():
     app = web.Application()
-    database = PostgresDB.shelterviron()
+    database = PostgresDB.create()
     handler = APIService(database)
     app.add_routes([
         web.get('/pets', handler.pet_list),
