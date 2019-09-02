@@ -20,6 +20,15 @@ def update_request():
     return Mock(json=json_data)
 
 
+@pytest.fixture()
+def empty_request():
+    async def json_data():
+        return {}
+
+    return Mock(json=json_data)
+
+
+@pytest.mark.usefixtures('shelter')
 @pytest.mark.asyncio
 async def test_pet_create(api_handler, create_request, pets_repo):
     response = await api_handler.pet_create(create_request)
@@ -30,8 +39,8 @@ async def test_pet_create(api_handler, create_request, pets_repo):
 
 
 @pytest.mark.asyncio
-async def test_pet_list(api_handler, pet):
-    response = await api_handler.pet_list(None)
+async def test_pet_list(api_handler, pet, empty_request):
+    response = await api_handler.pet_list(empty_request)
     data = json.loads(response.text)
     assert response.status == 200
     assert isinstance(data, list)
@@ -40,7 +49,7 @@ async def test_pet_list(api_handler, pet):
 
 @pytest.mark.asyncio
 async def test_pet_retrieve(api_handler, pet):
-    get_request = Mock(match_info={'id': '1'})
+    get_request = Mock(match_info={'pet_id': '1'})
     response = await api_handler.pet_retrieve(get_request)
     pet_data = json.loads(response.text)
     assert response.status == 200
@@ -53,11 +62,11 @@ async def test_pet_update(api_handler, update_request):
     response = await api_handler.pet_update(update_request)
     assert response.status
 
-    get_request = Mock(match_info={'id': '1'})
+    get_request = Mock(match_info={'pet_id': '1'})
     response = await api_handler.pet_retrieve(get_request)
     pet_data = json.loads(response.text)
     assert response.status == 200
     assert pet_data == {'id': 1, 'name': 'Reksio', 'type': 'dog', 'available': True, 'addedAt': 'added',
-                        'adoptedAt': 'aa', 'description': 'description', 'shelterID': '111'}
+                        'adoptedAt': 'aa', 'description': 'description', 'shelterID': '1'}
 
 

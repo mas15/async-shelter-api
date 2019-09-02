@@ -1,3 +1,5 @@
+import logging
+
 from aiohttp import web
 from shelter.entities.pet_data_storage import PetDataStorage
 from shelter.entities.shelter_data_storage import ShelterDataStorage
@@ -11,22 +13,27 @@ class APIService:
     async def pet_create(self, request):
         data = await request.json()
         try:
+            shelter_id = int(data['shelterID'])
+            shelter = await self._shelters_repo.get_by_id(shelter_id)
+            if not shelter:
+                logging.info(f'Could not find shelter with id {shelter_id}')
+                raise web.HTTPNotFound
             pet = await self._pets_repo.add(data)
         except (KeyError, ValueError, TypeError) as e:
-            print(e)
+            logging.exception(e)
             raise web.HTTPBadRequest
         return web.json_response(pet.asdict(), status=201)
 
     async def pet_list(self, request):
         pet_type = request.match_info.get('type')
-        pet_type = request.match_info.get('type')
-        pets = await self._pets_repo.all()
+        shelter_id = request.match_info.get('shelter_id')
+        pets = await self._pets_repo.all(pet_type=pet_type, shelter_id=shelter_id)
         return web.json_response([
             pet.asdict() for pet in pets
         ])
 
     async def pet_retrieve(self, request):
-        pet_id = int(request.match_info['id'])
+        pet_id = int(request.match_info['pet_id'])
         pet = await self._pets_repo.get_by_id(pet_id)
         if pet:
             return web.json_response(pet.asdict())
@@ -38,26 +45,28 @@ class APIService:
             pet_id = data.pop('id')
             pet = await self._pets_repo.update(pet_id, data)
         except (KeyError, ValueError, TypeError) as e:
-            print(e)
+            logging.exception(e)
             raise web.HTTPBadRequest
         return web.json_response(pet.asdict(), status=201)
 
     async def pet_delete(self, request):
-        pet_id = int(request.match_info['id'])
+        pet_id = int(request.match_info['pet_id'])
         await self._pets_repo.delete(pet_id)
-        return web.HTTPSuccessful
+        logging.info(f'Deleted pet with id {pet_id}')
+        return web.Response(status=200)
 
     async def shelter_create(self, request):
         data = await request.json()
         try:
             shelter = await self._shelters_repo.add(data)
         except (KeyError, ValueError, TypeError) as e:
-            print(e)
+            logging.exception(e)
             raise web.HTTPBadRequest
         return web.json_response(shelter.asdict(), status=201)
 
-    async def shelter_list(self, _):
-        shelters = await self._shelters_repo.all()
+    async def shelter_list(self, request):
+        city = request.match_info.get('city')
+        shelters = await self._shelters_repo.all(city=city)
         return web.json_response([
             shelter.asdict() for shelter in shelters
         ])
@@ -68,3 +77,11 @@ class APIService:
         if shelter:
             return web.json_response(shelter.asdict())
         raise web.HTTPNotFound
+
+    async def shelter_retrieve_pets(self, request):
+        shelter_id = int(request.match_info['pet_id'])
+        pet_type = request.match_info.get('type')
+        pets = await self._pets_repo.all(pet_type=pet_type, shelter_id=shelter_id)
+        return web.json_response([
+            pet.asdict() for pet in pets
+        ])

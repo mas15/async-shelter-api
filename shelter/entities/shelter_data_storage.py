@@ -11,6 +11,5 @@ class ShelterDataStorage(abc.ABC):
         pass
 
     @abc.abstractmethod
-    async def all(self):
+    async def all(self, city=None):
         pass
-

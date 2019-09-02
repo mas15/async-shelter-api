@@ -5,15 +5,6 @@ from tests.ondisk_pets_repository import OnDiskPetsRepository
 from tests.ondisk_shelter_repository import OnDiskSheltersRepository
 
 
-def shelter():
-    return {
-        'name': 'shelter',
-        'fullAddress': 'adress',
-        'city': 'city',
-        'petsAvailable': 11,
-    }
-
-
 @pytest.fixture
 def pets_repo():
     return OnDiskPetsRepository()
@@ -35,7 +26,7 @@ def pet_data():
         'name': 'Burek',
         'type': 'dog',
         'available': True,
-        'shelterID': '111',
+        'shelterID': '1',
         'adoptedAt': 'aa',
         'addedAt': 'added',
         'description': 'description'
@@ -43,6 +34,22 @@ def pet_data():
 
 
 @pytest.fixture()
-async def pet(loop, pet_data, pets_repo):
+def shelter_data():
+    return {
+        'name': 'shelter',
+        'fullAddress': 'adress',
+        'city': 'city',
+        'petsAvailable': 11,
+    }
+
+
+@pytest.fixture()
+async def pet(loop, pet_data, pets_repo, shelter):
     pet = await pets_repo.add(pet_data)
     return pet
+
+
+@pytest.fixture()
+async def shelter(loop, shelter_data, shelters_repo):
+    shelter = await shelters_repo.add(shelter_data)
+    return shelter

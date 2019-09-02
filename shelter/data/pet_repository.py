@@ -11,13 +11,11 @@ class PetModel(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
     name = db.Column(db.Unicode(255))
     type = db.Column(db.Unicode(255))
-
     available = db.Column(db.Boolean())
     addedAt = db.Column(db.Unicode(255)) # db.DateTime()
     adoptedAt = db.Column(db.Unicode(255)) # db.DateTime()
     description = db.Column(db.Unicode(255))
-    shelterID = db.Column(db.Unicode(255))
-    # shelterID = db.Column(None, db.ForeignKey('shelters.id'))
+    shelterID = db.Column(db.Integer, db.ForeignKey('shelters.id'))
 
     def asdict(self):
         return {
@@ -43,7 +41,7 @@ class PostgresPetsRepository(PetDataStorage, BaseGinoRepository):
             pet = await PetModel.get(pet_id)
             return pet
 
-    async def get_by_shelter(self, shelter_id):
+    async def get_by_shelter(self, shelter_id: str):
         pets = await PetModel.query.where(PetModel.shelterID == shelter_id).gino.all()
         return pets
 
@@ -57,7 +55,7 @@ class PostgresPetsRepository(PetDataStorage, BaseGinoRepository):
             pets = await pets_query.gino.all()
             return pets
 
-    async def update(self, pet_id, data):
+    async def update(self, pet_id: str, data: Dict):
         async with self.transaction():
             pet = await PetModel.get(pet_id)
             pet.update(**data).apply()
@@ -65,4 +63,4 @@ class PostgresPetsRepository(PetDataStorage, BaseGinoRepository):
 
     async def delete(self, pet_id):
         async with self.transaction():
-            await PetModel.delete.where(PetModel.id == pet_id)
+            await PetModel.delete.where(PetModel.id == pet_id).gino.status()

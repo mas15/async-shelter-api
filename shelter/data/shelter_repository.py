@@ -14,6 +14,11 @@ class ShelterModel(db.Model):
     city = db.Column(db.Unicode(255))
     petsAvailable = db.Column(db.Integer())
 
+    # def pets(self):
+    #     loader = PetModel.load(parent=ShelterModel.on(PetModel.parent_id == self.id))
+    #     async for child in loader.query.gino.iterate():
+    #         print(f'Parent of {child.id} is {child.parent.id}')
+
     def asdict(self):
         return {
             'id': self.id,
@@ -35,7 +40,10 @@ class PostgresSheltersRepository(ShelterDataStorage, BaseGinoRepository):
             shelter = await ShelterModel.get(shelter_id)
             return shelter
 
-    async def all(self, shelter_type=None, shelter_id=None):
+    async def all(self, city=None):
         async with self.transaction():
-            shelters = await ShelterModel.query.gino.all()
+            shelters_query = ShelterModel.query
+            if city:
+                shelters_query = shelters_query.where(ShelterModel.city == city)
+            shelters = await shelters_query.gino.all()
             return shelters
