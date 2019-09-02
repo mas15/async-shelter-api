@@ -17,14 +17,16 @@ class APIService:
             raise web.HTTPBadRequest
         return web.json_response(pet.asdict(), status=201)
 
-    async def pet_list(self, _):
+    async def pet_list(self, request):
+        pet_type = request.match_info.get('type')
+        pet_type = request.match_info.get('type')
         pets = await self._pets_repo.all()
         return web.json_response([
             pet.asdict() for pet in pets
         ])
 
     async def pet_retrieve(self, request):
-        pet_id = int(request.match_info['pet_id'])
+        pet_id = int(request.match_info['id'])
         pet = await self._pets_repo.get_by_id(pet_id)
         if pet:
             return web.json_response(pet.asdict())
@@ -41,7 +43,7 @@ class APIService:
         return web.json_response(pet.asdict(), status=201)
 
     async def pet_delete(self, request):
-        pet_id = int(request.match_info['pet_id'])
+        pet_id = int(request.match_info['id'])
         await self._pets_repo.delete(pet_id)
         return web.HTTPSuccessful
 

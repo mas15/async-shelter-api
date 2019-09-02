@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 setup(
-    name='shelter_asyncio',
+    name='shelter',
     entry_points={
         'console_scripts': [
             'api=shelter.service:main'

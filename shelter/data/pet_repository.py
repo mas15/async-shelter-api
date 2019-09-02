@@ -33,7 +33,7 @@ class PetModel(db.Model):
 
 
 class PostgresPetsRepository(PetDataStorage, BaseGinoRepository):
-    async def add(self, pet_data: Dict):
+    async def add(self, pet_data: Dict) -> PetModel:
         async with self.transaction():
             p = await PetModel.create(**pet_data)
             return p
@@ -49,7 +49,12 @@ class PostgresPetsRepository(PetDataStorage, BaseGinoRepository):
 
     async def all(self, pet_type=None, shelter_id=None):
         async with self.transaction():
-            pets = await PetModel.query.gino.all()
+            pets_query = PetModel.query
+            if pet_type:
+                pets_query = pets_query.where(PetModel.type == pet_type)
+            if shelter_id:
+                pets_query = pets_query.where(PetModel.shelterID == shelter_id)
+            pets = await pets_query.gino.all()
             return pets
 
     async def update(self, pet_id, data):

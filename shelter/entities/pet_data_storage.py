@@ -1,9 +1,10 @@
 import abc
+from typing import Dict
 
 
 class PetDataStorage(abc.ABC):
     @abc.abstractmethod
-    async def add(self, pet):
+    async def add(self, pet_data: Dict):
         pass
 
     @abc.abstractmethod
@@ -15,7 +16,7 @@ class PetDataStorage(abc.ABC):
         pass
 
     @abc.abstractmethod
-    async def all(self):
+    async def all(self, pet_type=None, shelter_id=None):
         pass
 
     @abc.abstractmethod
