@@ -1,8 +1,17 @@
+from datetime import datetime
+
 import pytest
+from freezegun import freeze_time
 
 from shelter.service import APIService
 from tests.ondisk_pets_repository import OnDiskPetsRepository
 from tests.ondisk_shelter_repository import OnDiskSheltersRepository
+
+
+@pytest.fixture(autouse=True)
+def set_time():
+    with freeze_time("2004-04-05 21:37:00"):
+        yield
 
 
 @pytest.fixture
@@ -27,8 +36,6 @@ def pet_data():
         'type': 'dog',
         'available': True,
         'shelterID': '1',
-        'adoptedAt': 'aa',
-        'addedAt': 'added',
         'description': 'description'
     }
 
@@ -45,6 +52,7 @@ def shelter_data():
 
 @pytest.fixture()
 async def pet(loop, pet_data, pets_repo, shelter):
+    pet_data['addedAt'] = str(datetime.now())
     pet = await pets_repo.add(pet_data)
     return pet
 

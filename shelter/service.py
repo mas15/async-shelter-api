@@ -1,4 +1,5 @@
 import logging
+from datetime import datetime
 
 from aiohttp import web
 from shelter.entities.pet_data_storage import PetDataStorage
@@ -18,6 +19,7 @@ class APIService:
             if not shelter:
                 logging.info(f'Could not find shelter with id {shelter_id}')
                 raise web.HTTPNotFound
+            data['addedAt'] = str(datetime.now())
             pet = await self._pets_repo.add(data)
         except (KeyError, ValueError, TypeError) as e:
             logging.exception(e)
@@ -25,9 +27,11 @@ class APIService:
         return web.json_response(pet.asdict(), status=201)
 
     async def pet_list(self, request):
-        pet_type = request.match_info.get('type')
-        shelter_id = request.match_info.get('shelter_id')
+        pet_type = request.rel_url.query.get('type')
+        shelter_id = request.rel_url.query.get('shelter_id')
         pets = await self._pets_repo.all(pet_type=pet_type, shelter_id=shelter_id)
+        if not pets:
+            raise web.HTTPNotFound
         return web.json_response([
             pet.asdict() for pet in pets
         ])
@@ -65,7 +69,7 @@ class APIService:
         return web.json_response(shelter.asdict(), status=201)
 
     async def shelter_list(self, request):
-        city = request.match_info.get('city')
+        city = request.rel_url.query.get('city')
         shelters = await self._shelters_repo.all(city=city)
         return web.json_response([
             shelter.asdict() for shelter in shelters
@@ -79,8 +83,8 @@ class APIService:
         raise web.HTTPNotFound
 
     async def shelter_retrieve_pets(self, request):
-        shelter_id = int(request.match_info['pet_id'])
-        pet_type = request.match_info.get('type')
+        shelter_id = int(request.match_info['shelter_id'])
+        pet_type = request.rel_url.query.get('type')
         pets = await self._pets_repo.all(pet_type=pet_type, shelter_id=shelter_id)
         return web.json_response([
             pet.asdict() for pet in pets

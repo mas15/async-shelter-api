@@ -1,4 +1,5 @@
 import json
+from datetime import datetime
 
 import pytest
 from mock import Mock
@@ -66,7 +67,13 @@ async def test_pet_update(api_handler, update_request):
     response = await api_handler.pet_retrieve(get_request)
     pet_data = json.loads(response.text)
     assert response.status == 200
-    assert pet_data == {'id': 1, 'name': 'Reksio', 'type': 'dog', 'available': True, 'addedAt': 'added',
-                        'adoptedAt': 'aa', 'description': 'description', 'shelterID': '1'}
-
-
+    assert pet_data == {
+        'id': 1,
+        'name': 'Reksio',
+        'type': 'dog',
+        'available': True,
+        'addedAt': str(datetime.now()),  # TODO use fixture
+        'adoptedAt': None,
+        'description': 'description',
+        'shelterID': '1'
+    }
