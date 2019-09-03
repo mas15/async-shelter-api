@@ -130,4 +130,3 @@ def test_all_shelter_endpoints_once():
     response = requests.get(f'{URL_HOST}/shelters?city=Warszawa')
     assert response.status_code == 200
     assert response.json() == [shelter2]
-

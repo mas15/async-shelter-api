@@ -7,4 +7,3 @@ COPY shelter /app/shelter
 COPY setup.py /app
 WORKDIR app
 RUN pip3 install .
-# ENTRYPOINT api

@@ -2,10 +2,10 @@ import logging
 
 from aiohttp import web
 
+from shelter.data import db
 from shelter.data.pet_repository import PostgresPetsRepository
 from shelter.data.shelter_repository import PostgresSheltersRepository
 from shelter.service import APIService
-from shelter.data import db
 
 DB_URI = 'postgresql://postgres@postgres:5432'
 

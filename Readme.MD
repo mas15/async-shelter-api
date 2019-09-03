@@ -10,9 +10,21 @@ API is running on port 8080 so that you can hit for example `http://localhost:80
 make test
 ```
 
+I wrote also some very simple integration tests that can be used by
+```{bash}
+make docker_test
+```
 
->>> requests.post('http://localhost:8080/pets', json={'name': 'aa', 'type': 'dog', 'available': True, 'shelterID': '111', 'adoptedAt': 'aa', 'addedAt': 'added', 'description': 'sas'})
->>> requests.post('http://localhost:8080/pets', json={'name': 'aa', 'type': 'dog', 'available': True, 'shelterID': '111', 'adoptedAt': 'aa', 'addedAt': 'added', 'description': 'sas'})
-requests.post('http://localhost:8080/shelters', json={'name': 'shelter','fullAddress' : 'adress', 'city' : 'city',  'petsAvailable' : 11})
 
-requests.get('http://localhost:8080/shelters')
+## Endpoints
+```
+GET /pets (?type=dog, ?shelterId=1)
+GET /pets/<id>
+POST /pets
+PATCH /pets
+DELETE /pets/<id>
+GET /shelters (?city=warszawa)
+GET /shelters/<id>
+GET /shelters/<id>/pets (?type=dog)
+POST /shelters
+```

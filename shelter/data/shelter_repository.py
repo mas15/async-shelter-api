@@ -1,8 +1,8 @@
 from typing import Dict
 
+from shelter.data import db
 from shelter.data.base_repository import BaseGinoRepository
 from shelter.entities.shelter_data_storage import ShelterDataStorage
-from shelter.data import db
 
 
 class ShelterModel(db.Model):
