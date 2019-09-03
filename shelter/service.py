@@ -19,7 +19,7 @@ class APIService:
             if not shelter:
                 logging.info(f'Could not find shelter with id {shelter_id}')
                 raise web.HTTPNotFound
-            data['addedAt'] = str(datetime.now())
+            data['addedAt'] = datetime.now()
             pet = await self._pets_repo.add(data)
         except (KeyError, ValueError, TypeError) as e:
             logging.exception(e)

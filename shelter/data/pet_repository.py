@@ -12,8 +12,8 @@ class PetModel(db.Model):
     name = db.Column(db.Unicode(255))
     type = db.Column(db.Unicode(255))
     available = db.Column(db.Boolean())
-    addedAt = db.Column(db.Unicode(255)) # db.DateTime()
-    adoptedAt = db.Column(db.Unicode(255)) # db.DateTime()
+    addedAt = db.Column(db.DateTime())
+    adoptedAt = db.Column(db.DateTime())
     description = db.Column(db.Unicode(255))
     shelterID = db.Column(db.Integer, db.ForeignKey('shelters.id'))
 
@@ -23,8 +23,8 @@ class PetModel(db.Model):
             'name': self.name,
             'type': self.type,
             'available': self.available,
-            'addedAt': self.addedAt,
-            'adoptedAt': self.adoptedAt,
+            'addedAt': str(self.addedAt) if self.addedAt else None,
+            'adoptedAt': str(self.adoptedAt) if self.adoptedAt else None,
             'description': self.description,
             'shelterID': self.shelterID
         }

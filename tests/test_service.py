@@ -59,7 +59,7 @@ async def test_pet_retrieve(api_handler, pet):
 
 @pytest.mark.usefixtures('pet')
 @pytest.mark.asyncio
-async def test_pet_update(api_handler, update_request):
+async def test_pet_update(api_handler, update_request, current_time):
     response = await api_handler.pet_update(update_request)
     assert response.status
 
@@ -72,7 +72,7 @@ async def test_pet_update(api_handler, update_request):
         'name': 'Reksio',
         'type': 'dog',
         'available': True,
-        'addedAt': str(datetime.now()),  # TODO use fixture
+        'addedAt': current_time,
         'adoptedAt': None,
         'description': 'description',
         'shelterID': '1'

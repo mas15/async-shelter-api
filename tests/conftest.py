@@ -9,9 +9,9 @@ from tests.ondisk_shelter_repository import OnDiskSheltersRepository
 
 
 @pytest.fixture(autouse=True)
-def set_time():
-    with freeze_time("2004-04-05 21:37:00"):
-        yield
+def current_time():
+    with freeze_time("2005-04-02 21:37:00"):
+        yield str(datetime.now())
 
 
 @pytest.fixture
