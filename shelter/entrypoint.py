@@ -7,12 +7,14 @@ from shelter.data.shelter_repository import PostgresSheltersRepository
 from shelter.service import APIService
 from shelter.data import db
 
+DB_URI = 'postgresql://postgres@postgres:5432'
+
 
 async def make_app():
     logging.info('STARTING....')
     app = web.Application()
 
-    gino_engine = await db.set_bind('postgresql://postgres@postgres:5432')
+    gino_engine = await db.set_bind(DB_URI)
     await db.gino.create_all()
     pets_repo = PostgresPetsRepository(gino_engine)
     shelters_repo = PostgresSheltersRepository(gino_engine)
@@ -30,6 +32,7 @@ async def make_app():
         web.get('/shelters/{shelter_id}', handler.shelter_retrieve),
         web.get('/shelters/{shelter_id}/pets', handler.shelter_retrieve_pets)
     ])
+    logging.info('API STARTED.....')
     return app
 
 

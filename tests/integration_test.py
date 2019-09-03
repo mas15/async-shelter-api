@@ -5,6 +5,8 @@ import requests
 
 from shelter.data import db
 
+URL_HOST = 'http://localhost:8080'
+
 
 @pytest.fixture()
 def prepare_db():
@@ -15,18 +17,21 @@ def prepare_db():
     asyncio.run(_prepare_db())
 
 
-@pytest.mark.usefixtures('prepare_db')
-def test_all_pet_endpoints_once():
-    response = requests.post('http://localhost:8080/shelters', json={
+@pytest.fixture()
+def shelter_id():
+    response = requests.post(f'{URL_HOST}/shelters', json={
         'name': 'Schronisko Pod Lipą',
         'fullAddress': 'ul. Lipowa 18, 00-123 Będzin',
         'city': 'Będzin',
         'petsAvailable': 13
     })
     assert response.status_code == 201
-    shelter_id = response.json()['id']
+    return response.json()['id']
 
-    response = requests.post('http://localhost:8080/pets', json={
+
+@pytest.fixture()
+def dog(shelter_id):
+    response = requests.post(f'{URL_HOST}/pets', json={
         'name': 'Bürek',
         'type': 'dog',
         'available': True,
@@ -35,14 +40,16 @@ def test_all_pet_endpoints_once():
         'shelterID': shelter_id
     })
     assert response.status_code == 201
-    pet = response.json()
-    pet_id = response.json()['id']
+    return response.json()
 
-    response = requests.get(f'http://localhost:8080/pets/{pet_id}')
+
+@pytest.mark.usefixtures('prepare_db')
+def test_all_pet_get_endpoints(shelter_id, dog):
+    response = requests.get(f'{URL_HOST}/pets/{dog["id"]}')
     assert response.status_code == 200
-    assert response.json() == pet
+    assert response.json() == dog
 
-    response = requests.post('http://localhost:8080/pets', json={
+    response = requests.post(f'{URL_HOST}/pets', json={
         'name': 'Kotek',
         'type': 'cat',
         'available': False,
@@ -54,31 +61,42 @@ def test_all_pet_endpoints_once():
     cat = response.json()
     cat_id = response.json()['id']
 
-    response = requests.get(f'http://localhost:8080/pets')
+    response = requests.get(f'{URL_HOST}/pets')
     assert response.status_code == 200
     assert len(response.json()) == 2
 
-    response = requests.get(f'http://localhost:8080/pets?type=cat')
+    response = requests.get(f'{URL_HOST}/pets?type=cat')
     assert response.status_code == 200
     assert response.json() == [cat]
 
-    response = requests.get(f'http://localhost:8080/pets?type=dog')
+    response = requests.get(f'{URL_HOST}/pets?type=dog')
     assert response.status_code == 200
-    assert response.json() == [pet]
+    assert response.json() == [dog]
 
-    response = requests.get(f'http://localhost:8080/pets?type=monkey')
+    response = requests.get(f'{URL_HOST}/pets?type=monkey')
     assert response.status_code == 404
 
-    response = requests.delete(f'http://localhost:8080/pets/{pet_id}')
+    response = requests.get(f'{URL_HOST}/shelters/{shelter_id}/pets')
+    assert response.status_code == 200
+    assert len(response.json()) == 2
+
+    response = requests.get(f'{URL_HOST}/shelters/{shelter_id}/pets?type=dog')
+    assert response.status_code == 200
+    assert response.json() == [dog]
+
+
+@pytest.mark.usefixtures('prepare_db')
+def test_all_pet_delete(dog):
+    response = requests.delete(f'{URL_HOST}/pets/{dog["id"]}')
     assert response.status_code == 200
 
-    response = requests.get(f'http://localhost:8080/pets/{pet_id}')
+    response = requests.get(f'{URL_HOST}/pets/{dog["id"]}')
     assert response.status_code == 404
 
 
 @pytest.mark.usefixtures('prepare_db')
 def test_all_shelter_endpoints_once():
-    response = requests.post('http://localhost:8080/shelters', json={
+    response = requests.post(f'{URL_HOST}/shelters', json={
         'name': 'Schronisko Pod Lipą',
         'fullAddress': 'ul. Lipowa 18, 00-123 Będzin',
         'city': 'Będzin',
@@ -86,7 +104,7 @@ def test_all_shelter_endpoints_once():
     })
     assert response.status_code == 201
 
-    response = requests.post('http://localhost:8080/shelters', json={
+    response = requests.post(f'{URL_HOST}/shelters', json={
         'name': 'Schronisko Drugie',
         'fullAddress': 'ul. Lipowa 18, 00-123 Będzin',
         'city': 'Warszawa',
@@ -95,11 +113,11 @@ def test_all_shelter_endpoints_once():
     assert response.status_code == 201
     shelter2 = response.json()
 
-    response = requests.get(f'http://localhost:8080/shelters')
+    response = requests.get(f'{URL_HOST}/shelters')
     assert response.status_code == 200
     assert len(response.json()) == 2
 
-    response = requests.get(f'http://localhost:8080/shelters?city=Warszawa')
+    response = requests.get(f'{URL_HOST}/shelters?city=Warszawa')
     assert response.status_code == 200
     assert response.json() == [shelter2]
 
