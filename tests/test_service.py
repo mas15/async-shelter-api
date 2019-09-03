@@ -1,5 +1,4 @@
 import json
-from datetime import datetime
 
 import pytest
 from mock import Mock
@@ -72,7 +71,7 @@ async def test_pet_update(api_handler, update_request, current_time):
         'name': 'Reksio',
         'type': 'dog',
         'available': True,
-        'addedAt': current_time,
+        'addedAt': str(current_time),
         'adoptedAt': None,
         'description': 'description',
         'shelterID': '1'

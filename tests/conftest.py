@@ -1,5 +1,4 @@
-from datetime import datetime
-
+import arrow
 import pytest
 from freezegun import freeze_time
 
@@ -11,7 +10,7 @@ from tests.ondisk_shelter_repository import OnDiskSheltersRepository
 @pytest.fixture(autouse=True)
 def current_time():
     with freeze_time("2005-04-02 21:37:00"):
-        yield str(datetime.now())
+        yield arrow.now().naive
 
 
 @pytest.fixture
@@ -51,8 +50,8 @@ def shelter_data():
 
 
 @pytest.fixture()
-async def pet(loop, pet_data, pets_repo, shelter):
-    pet_data['addedAt'] = str(datetime.now())
+async def pet(loop, pet_data, pets_repo, shelter, current_time):
+    pet_data['addedAt'] = str(current_time)
     pet = await pets_repo.add(pet_data)
     return pet
 

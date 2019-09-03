@@ -7,7 +7,7 @@ test: venv
 	. venv/bin/activate && py.test tests/test_service.py -v
 
 docker_test: venv
-	. venv/bin/activate &&  docker-compose up -d && py.test tests/integration_test.py -v
+	. venv/bin/activate &&  docker-compose up -d && py.test tests/integration_test.py -vv
 
 coverage:
 	py.test --cov-config .coveragerc --verbose --cov-report term --cov-report xml --cov=requests tests

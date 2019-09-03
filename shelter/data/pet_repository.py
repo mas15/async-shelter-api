@@ -58,7 +58,7 @@ class PostgresPetsRepository(PetDataStorage, BaseGinoRepository):
     async def update(self, pet_id: str, data: Dict):
         async with self.transaction():
             pet = await PetModel.get(pet_id)
-            pet.update(**data).apply()
+            await pet.update(**data).apply()
             return pet
 
     async def delete(self, pet_id):

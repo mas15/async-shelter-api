@@ -10,6 +10,7 @@ setup(
     install_requires=[
         'aiobotocore==0.10.3',
         'aiohttp==3.5.4',
+        'arrow==0.14.6',
         'gino==0.8.3',
         'SQLAlchemy==1.3.8'
     ],

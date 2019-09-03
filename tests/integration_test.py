@@ -44,7 +44,7 @@ def dog(shelter_id):
 
 
 @pytest.mark.usefixtures('prepare_db')
-def test_all_pet_get_endpoints(shelter_id, dog):
+def test_all_pet_retrieve_endpoints(shelter_id, dog):
     response = requests.get(f'{URL_HOST}/pets/{dog["id"]}')
     assert response.status_code == 200
     assert response.json() == dog
@@ -86,24 +86,34 @@ def test_all_pet_get_endpoints(shelter_id, dog):
 
 
 @pytest.mark.usefixtures('prepare_db')
-def test_all_pet_delete(dog):
+def test_pet_delete(dog):
     response = requests.delete(f'{URL_HOST}/pets/{dog["id"]}')
     assert response.status_code == 200
 
     response = requests.get(f'{URL_HOST}/pets/{dog["id"]}')
     assert response.status_code == 404
 
+    response = requests.delete(f'{URL_HOST}/pets/{dog["id"]}')
+    assert response.status_code == 200
+
 
 @pytest.mark.usefixtures('prepare_db')
-def test_all_shelter_endpoints_once():
-    response = requests.post(f'{URL_HOST}/shelters', json={
-        'name': 'Schronisko Pod Lipą',
-        'fullAddress': 'ul. Lipowa 18, 00-123 Będzin',
-        'city': 'Będzin',
-        'petsAvailable': 13
+def test_pet_update(dog, current_time):
+    response = requests.patch(f'{URL_HOST}/pets', json={
+        'id': dog['id'], 'name': 'Nowe imie', 'adoptedAt': str(current_time)
     })
-    assert response.status_code == 201
+    assert response.status_code == 200
 
+    response = requests.get(f'{URL_HOST}/pets/{dog["id"]}')
+    assert response.status_code == 200
+
+    dog['name'] = 'Nowe imie'
+    dog['adoptedAt'] = str(current_time)
+    assert response.json() == dog
+
+
+@pytest.mark.usefixtures('prepare_db', 'shelter_id')
+def test_all_shelter_endpoints_once():
     response = requests.post(f'{URL_HOST}/shelters', json={
         'name': 'Schronisko Drugie',
         'fullAddress': 'ul. Lipowa 18, 00-123 Będzin',

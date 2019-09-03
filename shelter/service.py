@@ -1,6 +1,6 @@
 import logging
-from datetime import datetime
 
+import arrow
 from aiohttp import web
 from shelter.entities.pet_data_storage import PetDataStorage
 from shelter.entities.shelter_data_storage import ShelterDataStorage
@@ -19,7 +19,7 @@ class APIService:
             if not shelter:
                 logging.info(f'Could not find shelter with id {shelter_id}')
                 raise web.HTTPNotFound
-            data['addedAt'] = datetime.now()
+            data['addedAt'] = arrow.now().naive
             pet = await self._pets_repo.add(data)
         except (KeyError, ValueError, TypeError) as e:
             logging.exception(e)
@@ -46,12 +46,14 @@ class APIService:
     async def pet_update(self, request):
         data = await request.json()
         try:
+            if 'adoptedAt' in data:
+                data['adoptedAt'] = arrow.get(data['adoptedAt']).naive
             pet_id = data.pop('id')
             pet = await self._pets_repo.update(pet_id, data)
         except (KeyError, ValueError, TypeError) as e:
             logging.exception(e)
             raise web.HTTPBadRequest
-        return web.json_response(pet.asdict(), status=201)
+        return web.json_response(pet.asdict(), status=200)
 
     async def pet_delete(self, request):
         pet_id = int(request.match_info['pet_id'])

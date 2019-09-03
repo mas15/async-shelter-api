@@ -14,11 +14,6 @@ class ShelterModel(db.Model):
     city = db.Column(db.Unicode(255))
     petsAvailable = db.Column(db.Integer())
 
-    # def pets(self):
-    #     loader = PetModel.load(parent=ShelterModel.on(PetModel.parent_id == self.id))
-    #     async for child in loader.query.gino.iterate():
-    #         print(f'Parent of {child.id} is {child.parent.id}')
-
     def asdict(self):
         return {
             'id': self.id,
