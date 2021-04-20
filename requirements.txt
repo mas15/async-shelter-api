@@ -1,5 +1,5 @@
 aiobotocore==0.10.3
-asyncpg==0.18.3
+asyncpg==0.21.0
 aiohttp==3.7.4
 arrow==0.14.6
 gino==0.8.3
